@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="TestMfc">
+</Property><Property Name="解决方案文件" Value="E:\yingjian\RtuApi及说明书20170406\RtuApi及说明书20170406\RtuApi_Demo_vs2010_v1.0.0.3\TestMfc\TestMfc.sln">
+</Property><Property Name="Date" Value="2017年4月17日">
+</Property><Property Name="Time" Value="20:36:56">
+</Property><Property Name="日志号" Value="2">
+</Property></Properties><Event ErrorLevel="0" Project="TestMfc" Source="TestMfc.vcproj" Description="Converting project file 'E:\yingjian\RtuApi及说明书20170406\RtuApi及说明书20170406\RtuApi_Demo_vs2010_v1.0.0.3\TestMfc\TestMfc.vcproj'.">
+</Event><Event ErrorLevel="1" Project="TestMfc" Source="TestMfc.vcproj" Description="VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.">
+</Event><Event ErrorLevel="0" Project="TestMfc" Source="TestMfc.vcproj" Description="Done converting to new project file 'E:\yingjian\RtuApi及说明书20170406\RtuApi及说明书20170406\RtuApi_Demo_vs2010_v1.0.0.3\TestMfc\TestMfc.vcxproj'.">
+</Event><Event ErrorLevel="3" Project="TestMfc" Source="TestMfc.vcproj" Description="Converted">
+</Event></UpgradeLog>

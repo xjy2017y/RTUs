@@ -23,6 +23,7 @@ public:
 	CAboutDlg();
 	CWinThread* pThread;
 	bool isopen;
+	SOCKET sockConn;
 
 // 对话框数据
 	enum { IDD = IDD_ABOUTBOX };
@@ -56,6 +57,7 @@ END_MESSAGE_MAP()
 CRTUControllerDlg::CRTUControllerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CRTUControllerDlg::IDD, pParent)
 	, m_port(0)
+	, m_input(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -64,6 +66,7 @@ void CRTUControllerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_port);
+	DDX_Text(pDX, IDC_EDIT3, m_input);
 }
 
 BEGIN_MESSAGE_MAP(CRTUControllerDlg, CDialogEx)
@@ -75,6 +78,9 @@ BEGIN_MESSAGE_MAP(CRTUControllerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CRTUControllerDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CRTUControllerDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(finishThreadButton, &CRTUControllerDlg::OnBnClickedfinishthreadbutton)
+	ON_EN_CHANGE(IDC_EDIT3, &CRTUControllerDlg::OnEnChangeEdit3)
+	ON_EN_CHANGE(IDC_EDIT2, &CRTUControllerDlg::OnEnChangeEdit2)
+	ON_BN_CLICKED(IDC_BUTTON5, &CRTUControllerDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -201,7 +207,7 @@ UINT ThreadFun(LPVOID pParam){  //线程要调用的函数
 	CString msg;
 	msg.Format(_T("开始监听:%d"),port);
 	MessageBox(NULL,msg, _T("thread func"),MB_OK);
-	char buf[] = {0x01,0x03,0x00,0x02,0x75,0xc5};   
+	char buf[100] = "heheehehe";
 	for(int i=0;i<6;i++){
 		printf("%02x\t",(unsigned char)buf[i]);
 	}
@@ -212,8 +218,7 @@ UINT ThreadFun(LPVOID pParam){  //线程要调用的函数
         return 0;  
     }  
 
-	thiz->SetDlgItemTextW(IDC_EDIT2,_T("开始监听..\r\n"));  //取出来在追加
-    
+	thiz->SetDlgItemTextA(IDC_EDIT2,_T("开始监听.."));  //取出来在追加
     //创建用于监听的套接字  
     SOCKET sockSrv = socket(AF_INET, SOCK_STREAM, 0);		//TCP UDP协议
 	
@@ -249,38 +254,46 @@ UINT ThreadFun(LPVOID pParam){  //线程要调用的函数
 		case SOCKET_ERROR:
 			break;
 		default:
-			SOCKET sockConn = accept(sockSrv, (SOCKADDR *) &addrClient, &len);			//阻塞，知道监听到有客户端发消息过来，调用accept后继续
-			if(sockConn == SOCKET_ERROR){  
+			SOCKET* sockConn = &(thiz->sockConn);
+			*sockConn = accept(sockSrv, (SOCKADDR *) &addrClient, &len);			//阻塞，知道监听到有客户端发消息过来，调用accept后继续
+			if(*sockConn == SOCKET_ERROR){  
 				printf("Accept failed:%d", WSAGetLastError());  
 				break;  
 			}
 			//printf("Accept client IP:[%s]\n", inet_ntoa(addrClient.sin_addr));			//从addrClient中拿出消息
 			CString lastStr;
-			thiz->GetDlgItemTextW(IDC_EDIT2,lastStr);
+			thiz->GetDlgItemTextA(IDC_EDIT2,lastStr);
 			lastStr = lastStr + _T("\r\n");
 			char *p = inet_ntoa(addrClient.sin_addr);
 			CString ipmsg(p);
 			ipmsg = lastStr + _T("Accept client IP:") +ipmsg;
-			thiz->SetDlgItemTextW(IDC_EDIT2,ipmsg);
+			thiz->SetDlgItemTextA(IDC_EDIT2,ipmsg);
 			//发送数据  
-			int iSend = send(sockConn, buf, sizeof(buf) , 0);  
+			/*int iSend = send(*sockConn, buf, sizeof(buf) , 0);  
 			if(iSend == SOCKET_ERROR){  
 				printf("send failed");  
 				break;  
-			} 
-  
+			}*/
 			char recvBuf[100];  
 			//memset(recvBuf, 0, sizeof(recvBuf));		//位置全置0
 	//      //接收数据  
-			if(recv(sockConn, recvBuf, sizeof(recvBuf), 0)!= -1){
+			if(recv(*sockConn, recvBuf, sizeof(recvBuf), 0)!= -1){
+				CString  xx,str1;
+				for(int i = 0;i<sizeof(recvBuf);i++){
+					//printf("%02x\t",(unsigned char)recvBuf[i]);
+					xx.Format(_T("%02x\t"),(unsigned char)recvBuf[i]);
+					str1 = str1 + xx;
+				}
+				CString str;
+				thiz->GetDlgItemTextA(IDC_EDIT2,str);
 				CString str2(recvBuf);
-				thiz->SetDlgItemTextW(IDC_EDIT2,str2);
+				thiz->SetDlgItemTextA(IDC_EDIT2,str + _T("\r\n") + str1);
 			}
 			//printf("%s\n", recvBuf);  
 			/*for(int i = 0;i<100;i++){
 				printf("%02x\t",(unsigned char)recvBuf[i]);
 			}*/
-			closesocket(sockConn); 
+			closesocket(*sockConn); 
 			}
     }  
 	closesocket(sockSrv);
@@ -299,4 +312,45 @@ void CRTUControllerDlg::OnBnClickedfinishthreadbutton()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	isOpen = false;
+}
+
+
+void CRTUControllerDlg::OnEnChangeEdit3()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CRTUControllerDlg::OnEnChangeEdit2()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CRTUControllerDlg::OnBnClickedButton5()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	if(sockConn == SOCKET_ERROR){  
+		MessageBox(_T("sockConn failed!")); 
+	}else{
+		char str[100];
+		memset(str, 0, sizeof(str));
+		strcpy(str,m_input);
+
+		int iSend = send(sockConn, str, sizeof(str) , 0);  
+		if(iSend == -1){
+			MessageBox(_T("send failed!"));
+		}
+	}
 }

@@ -13,6 +13,7 @@ public:
 	CRTUControllerDlg(CWnd* pParent = NULL);	// 标准构造函数
 	CWinThread* pThread;
 	bool isOpen;
+	SOCKET sockConn;
 
 // 对话框数据
 	enum { IDD = IDD_RTUCONTROLLER_DIALOG };
@@ -39,4 +40,8 @@ public:
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnBnClickedfinishthreadbutton();
+	afx_msg void OnEnChangeEdit3();
+	CString m_input;
+	afx_msg void OnEnChangeEdit2();
+	afx_msg void OnBnClickedButton5();
 };

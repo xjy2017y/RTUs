@@ -11,7 +11,7 @@
 void main()  
 {  
     WSADATA wsaData;  
-    int port = 30002;  
+    int port = 6000;  
   
 	char buf[] = {0x01,0x03,0x00,0x02,0x75,0xc5};   
 	for(int i=0;i<6;i++){
